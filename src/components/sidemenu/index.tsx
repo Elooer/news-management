@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Layout, Menu } from 'antd'
 import axios from 'axios'
 import {
@@ -55,6 +55,9 @@ export default function SideMenu() {
   const [collapsed, setCollapsed] = useState(false)
   const [menu, setMenu] = useState([])
   const navigate = useNavigate()
+  const location = useLocation()
+  const selectKey = location.pathname
+  const openKeys = ['/' + location.pathname.split('/')[1]]
 
   useEffect(() => {
     axios
@@ -78,7 +81,8 @@ export default function SideMenu() {
           <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={['1']}
+            selectedKeys={[selectKey]}
+            defaultOpenKeys={openKeys}
             items={menu}
             onSelect={selectMenu}
           />

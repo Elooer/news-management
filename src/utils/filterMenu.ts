@@ -1,7 +1,6 @@
 const filterMenu = (raw: any) => {
   const newData: any = []
   raw.forEach((item: any) => {
-    let obj = {}
     let children: any = []
     if (item.pagepermisson === 1) {
       if (item.children?.length > 0) {

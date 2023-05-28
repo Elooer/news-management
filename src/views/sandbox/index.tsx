@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { Outlet } from 'react-router-dom'
 import TopHeader from '../../components/topheader'
 import SideMenu from '../../components/sidemenu'
@@ -21,6 +21,7 @@ export default function Sandbox() {
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
+            overflow: 'auto',
           }}
         >
           <Outlet />

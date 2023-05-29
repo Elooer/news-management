@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
-import { Table, Tag, Button, Modal, Popover, Switch } from 'antd'
+import { useState, useEffect, useRef } from 'react'
+import { Table, Button, Modal, Switch } from 'antd'
 import {
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleFilled,
 } from '@ant-design/icons'
 import axios from 'axios'
+import UserForm from '../../../components/userform'
 
 const { confirm } = Modal
 
@@ -20,15 +21,45 @@ interface ItemType {
 }
 
 export default function UserList() {
-  const [dataSource, setDataSource] = useState([])
+  const [dataSource, setDataSource] = useState<any>([])
+  const [isAddVisible, setIsAddVisible] = useState(false)
+  const [isUpdateVisible, setIsUpdateVisible] = useState(false)
+  const [roleList, setRoleList] = useState<any[]>([])
+  const [regionList, setRegionList] = useState<any[]>([])
+  const [isUpdateDisabled, setIsUpdateDisabled] = useState(false)
+  const [current, setCurrent] = useState<any>({})
+  const addForm = useRef<any>(null)
+  const updateForm = useRef<any>(null)
+
+  const { roleId, region, username } = JSON.parse(
+    localStorage.getItem('news_token') || ''
+  )
 
   useEffect(() => {
-    axios.get('http://localhost:5000/users').then(res => {
-      // const list = res.data
-      // list.forEach((item: any) => {
-      //   item.children.length === 0 && (item.children = '')
-      // })
-      setDataSource(res.data)
+    axios.get('http://localhost:5000/users?_expand=role').then(res => {
+      const list = res.data
+      setDataSource(
+        roleId === 1
+          ? list
+          : [
+              ...list.filter((item: any) => item.username === username),
+              ...list.filter(
+                (item: any) => item.region === region && roleId === 3
+              ),
+            ]
+      )
+    })
+  }, [])
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/regions').then(res => {
+      setRegionList(res.data)
+    })
+  }, [])
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/roles').then(res => {
+      setRoleList(res.data)
     })
   }, [])
 
@@ -46,77 +77,162 @@ export default function UserList() {
   }
 
   const deleteMethod = (item: ItemType) => {
-    if (item.grade === 1) {
-      setDataSource(dataSource.filter((data: ItemType) => data.id !== item.id))
-      axios.delete(`http://localhost:5000/rights/${item.id}`)
-    } else {
-      let list: ItemType[] = dataSource.filter(
-        (data: ItemType) => data.id === item.rightId
-      )
-      list[0].children = list[0].children?.filter(
-        (data: ItemType) => data.id !== item.id
-      )
-      setDataSource([...dataSource])
-      axios.delete(`http://localhost:5000/children/${item.id}`)
-    }
+    setDataSource(dataSource.filter((data: ItemType) => data.id !== item.id))
+    axios.delete(`http://localhost:5000/users/${item.id}`)
   }
 
-  const switchMethod = (item: ItemType) => {
-    item.pagepermisson = item.pagepermisson === 1 ? 0 : 1
+  const handleChange = (item: any) => {
+    item.roleState = !item.roleState
     setDataSource([...dataSource])
-    if (item.grade === 1) {
-      axios.patch(`http://localhost:5000/rights/${item.id}`, {
-        pagepermisson: item.pagepermisson,
-      })
-    } else {
-      axios.patch(`http://localhost:5000/children/${item.id}`, {
-        pagepermisson: item.pagepermisson,
-      })
-    }
+    axios.patch(`http://localhost:5000/users/${item.id}`, {
+      roleState: item.roleState,
+    })
+  }
+
+  const handleUpdate = (item: any) => {
+    setIsUpdateVisible(true)
+    // 解决异步队列问题
+    setTimeout(() => {
+      if (item.roleId === 1) {
+        setIsUpdateDisabled(true)
+      } else {
+        setIsUpdateDisabled(false)
+      }
+      updateForm.current.setFieldsValue(item)
+    }, 0)
+    setCurrent(item)
   }
 
   const columns = [
     {
       title: '区域',
       dataIndex: 'region',
+      filters: [
+        ...regionList.map(item => ({ text: item.title, value: item.value })),
+        { text: '全球', value: '全球' },
+      ],
+      onFilter: (value: any, item: any) => {
+        if (value === '全球') {
+          return item.region === ''
+        }
+        return item.region === value
+      },
       render: (region: any) => {
         return <b>{region === '' ? '全球' : region}</b>
       },
     },
     {
       title: '角色名称',
-      dataIndex: 'roleId',
+      dataIndex: 'role',
+      render: (role: any) => {
+        return role.roleName
+      },
     },
     {
       title: '用户名',
       dataIndex: 'username',
       render: (key: any) => {
-        return <Tag color="orange">{key}</Tag>
+        return key
       },
     },
     {
       title: '用户状态',
       dataIndex: 'roleState',
-      render: (key: any) => {
-        return <Switch></Switch>
+      render: (roleState: any, item: any) => {
+        return (
+          <Switch
+            checked={roleState}
+            disabled={item.default}
+            onChange={() => handleChange(item)}
+          ></Switch>
+        )
       },
     },
     {
       title: '操作',
-      render: (item: ItemType) => {
+      render: (item: any) => {
         return (
           <div>
-            <Button danger shape="circle" icon={<DeleteOutlined />} />
+            <Button
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              disabled={item.default}
+              onClick={() => confirmMethod(item)}
+            />
 
-            <Button type="primary" shape="circle" icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              disabled={item.default}
+              onClick={() => handleUpdate(item)}
+            />
           </div>
         )
       },
     },
   ]
 
+  const addFormOk = () => {
+    addForm.current
+      ?.validateFields()
+      .then((value: any) => {
+        setIsAddVisible(false)
+        addForm.current.resetFields()
+        axios
+          .post('http://localhost:5000/users', {
+            ...value,
+            roleState: true,
+            default: false,
+          })
+          .then(res => {
+            setDataSource([
+              ...dataSource,
+              {
+                ...res.data,
+                role: roleList.filter(item => item.id === value.roleId)[0],
+              },
+            ])
+          })
+        setDataSource([...dataSource])
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
+  }
+
+  const updateFormOk = () => {
+    updateForm.current.validateFields().then((value: any) => {
+      setIsUpdateVisible(false)
+      setDataSource(
+        dataSource.map((item: any) => {
+          if (item.id === current.id) {
+            return {
+              ...item,
+              ...value,
+              role: roleList.filter(data => data.id === value.roleId)[0],
+            }
+          }
+          return item
+        })
+      )
+      setIsUpdateDisabled(!isUpdateDisabled)
+      console.log('current', current)
+      axios.patch(`http://localhost:5000/users/${current.id}`, value)
+    })
+  }
+
   return (
     <div>
+      <Button
+        type="primary"
+        onClick={() => {
+          setIsAddVisible(true)
+        }}
+      >
+        添加用户
+      </Button>
       <Table
         dataSource={dataSource}
         columns={columns}
@@ -125,6 +241,36 @@ export default function UserList() {
         }}
         rowKey={(item: any) => item.id}
       />
+      <Modal
+        open={isAddVisible}
+        title="添加用户"
+        okText="确定"
+        cancelText="取消"
+        onCancel={() => {
+          setIsAddVisible(false)
+        }}
+        onOk={() => addFormOk()}
+      >
+        <UserForm regionList={regionList} roleList={roleList} ref={addForm} />
+      </Modal>
+      <Modal
+        open={isUpdateVisible}
+        title="更新用户"
+        okText="更新"
+        cancelText="取消"
+        onCancel={() => {
+          setIsUpdateVisible(false)
+          setIsUpdateDisabled(!isUpdateDisabled)
+        }}
+        onOk={() => updateFormOk()}
+      >
+        <UserForm
+          regionList={regionList}
+          roleList={roleList}
+          ref={updateForm}
+          isUpdateDisabled={isUpdateDisabled}
+        />
+      </Modal>
     </div>
   )
 }

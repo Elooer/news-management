@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Layout, theme, Button, Dropdown, Avatar } from 'antd'
 import type { MenuProps } from 'antd'
 import {
@@ -8,31 +9,43 @@ import {
 } from '@ant-design/icons'
 
 const { Header } = Layout
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-      >
-        超级管理员
-      </a>
-    ),
-  },
-  {
-    key: '4',
-    danger: true,
-    label: '退出',
-  },
-]
 
 export default function TopHeader() {
   const [collapsed, setCollapsed] = useState(false)
+  const navigate = useNavigate()
+
+  const {
+    role: { roleName },
+    username,
+  } = JSON.parse(localStorage.getItem('news_token') as string)
+
   const {
     token: { colorBgContainer },
   } = theme.useToken()
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.antgroup.com"
+        >
+          {roleName}
+        </a>
+      ),
+    },
+    {
+      key: '4',
+      danger: true,
+      label: '退出',
+      onClick: () => {
+        localStorage.removeItem('news_token')
+        navigate('/login')
+      },
+    },
+  ]
   return (
     <Header style={{ padding: 0, background: colorBgContainer }}>
       <Button
@@ -46,7 +59,9 @@ export default function TopHeader() {
         }}
       />
       <div style={{ float: 'right' }}>
-        <span>欢迎admin回来</span>
+        <span>
+          欢迎<span style={{ color: '#1890ff' }}>{username}</span>回来
+        </span>
         <Dropdown menu={{ items }}>
           <Avatar size="large" icon={<UserOutlined />} />
         </Dropdown>

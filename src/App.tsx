@@ -18,6 +18,8 @@ import Sunset from './views/sandbox/publishManage/Sunset'
 import Sandbox from './views/sandbox'
 import Login from './views/login'
 import NoPermission from './views/sandbox/nopermission'
+import NewsPreview from './views/sandbox/newsManage/NewsPreview'
+import NewsUpdate from './views/sandbox/newsManage/NewsUpdate'
 
 function App() {
   const [backRouteList, setBackRouteList] = useState<any>([])
@@ -39,6 +41,8 @@ function App() {
     '/news-manage/add': <NewsAdd />,
     '/news-manage/draft': <NewsDraft />,
     '/news-manage/category': <NewsCategory />,
+    '/news-manage/preview/:id': <NewsPreview />,
+    '/news-manage/update/:id': <NewsUpdate />,
     '/audit-manage/audit': <Audit />,
     '/audit-manage/list': <AuditList />,
     '/publish-manage/unpublished': <Unpublished />,
@@ -52,13 +56,14 @@ function App() {
   }
 
   const checkRoute = (item: any): boolean => {
-    return rotesMap[item.key] && item.pagepermisson
+    return rotesMap[item.key] && (item.pagepermisson || item.routepermisson)
   }
 
   const {
     role: { rights },
-  } = JSON.parse(localStorage.getItem('news_token') || '') || {}
-
+  } = JSON.parse(localStorage.getItem('news_token') as string) || {
+    role: { rights: [] },
+  }
   const checkUserPermission = (item: any): boolean => {
     return rights.includes(item.key)
   }

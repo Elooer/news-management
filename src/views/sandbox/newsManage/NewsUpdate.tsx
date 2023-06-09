@@ -1,25 +1,34 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Steps, Button, Form, Input, Select, message, notification } from 'antd'
 import { PageHeader } from '@ant-design/pro-layout'
 import style from './index.module.scss'
 import axios from 'axios'
 import NewsEditor from '../../../components/newsEditor'
 
-export default function NewsAdd() {
+export default function NewsUpdate() {
   const [current, setCurrent] = useState(0)
   const [categoryList, setCategoryList] = useState([])
   const [formInfo, setFormInfo] = useState({})
   const [content, setContent] = useState('')
   const formRef = useRef<any>(null)
   const navigate = useNavigate()
-
-  const user = JSON.parse(localStorage.getItem('news_token') || '')
+  const params: any = useParams()
+  const { id } = params
 
   useEffect(() => {
     axios.get('http://localhost:5000/categories').then(res => {
       setCategoryList(res.data)
     })
+  }, [])
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/news/${id}?_expand=category&_expand=role`)
+      .then(res => {
+        let { title, categoryId, content } = res.data
+        formRef.current.setFieldsValue({ title, categoryId })
+        setContent(content)
+      })
   }, [])
 
   interface FormItf {
@@ -53,18 +62,11 @@ export default function NewsAdd() {
 
   const handleSave = (auditState: number) => {
     axios
-      .post('http://localhost:5000/news', {
+      .patch(`http://localhost:5000/news/${id}`, {
         ...formInfo,
         content: content,
-        region: user.region ? user.region : '全球',
-        author: user.username,
-        roleId: user.roleId,
+
         auditState,
-        publishState: 0,
-        createTime: Date.now(),
-        star: 0,
-        view: 0,
-        // publishTime: 0,
       })
       .then((res: any) => {
         navigate(auditState === 0 ? '/news-manage/draft' : '/audit-manage/list')
@@ -80,7 +82,10 @@ export default function NewsAdd() {
 
   return (
     <div>
-      <PageHeader title="撰写新闻"></PageHeader>
+      <PageHeader
+        title="更新新闻"
+        onBack={() => navigate(-1) as any}
+      ></PageHeader>
       <Steps
         current={1}
         items={[

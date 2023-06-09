@@ -115,7 +115,7 @@ export default function RightList() {
                 </div>
               }
               title="配置项"
-              trigger={item.pagepermisson === undefined ? '' : 'click'}
+              trigger={(item.pagepermisson === undefined ? '' : 'click') as any}
             >
               <Button
                 type="primary"

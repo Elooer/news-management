@@ -1,6 +1,8 @@
 const {
   role: { rights },
-} = JSON.parse(localStorage.getItem('news_token') || '') || {}
+} = JSON.parse(localStorage.getItem('news_token') as string) || {
+  role: { rights: [] },
+}
 
 const filterMenu = (raw: any) => {
   const newData: any = []

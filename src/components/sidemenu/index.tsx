@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../store'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Layout, Menu } from 'antd'
 import axios from 'axios'
-import {
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from '@ant-design/icons'
+import { UserOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import filterMenu from '../../utils/filterMenu'
 import './index.scss'
@@ -52,7 +50,7 @@ const menuList: MenuItem[] = [
 ]
 
 export default function SideMenu() {
-  const [collapsed, setCollapsed] = useState(false)
+  const collapsed = useSelector((state: RootState) => state.collapsed.value)
   const [menu, setMenu] = useState([])
   const navigate = useNavigate()
   const location = useLocation()
@@ -60,12 +58,10 @@ export default function SideMenu() {
   const openKeys = ['/' + location.pathname.split('/')[1]]
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/rights?_embed=children')
-      .then((res: any) => {
-        const data: any = filterMenu(res.data)
-        setMenu(data)
-      })
+    axios.get('/rights?_embed=children').then((res: any) => {
+      const data: any = filterMenu(res.data)
+      setMenu(data)
+    })
   }, [])
 
   const selectMenu = ({ key }: any) => {

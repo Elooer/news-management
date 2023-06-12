@@ -21,7 +21,7 @@ export default function Login() {
     console.log(values)
     axios
       .get(
-        `http://localhost:5000/users?username=${values.username}&password=${values.password}&roleState=true&_expand=role`
+        `/users?username=${values.username}&password=${values.password}&roleState=true&_expand=role`
       )
       .then(res => {
         if (res.data.length === 0) {

@@ -36,7 +36,7 @@ export default function UserList() {
   )
 
   useEffect(() => {
-    axios.get('http://localhost:5000/users?_expand=role').then(res => {
+    axios.get('/users?_expand=role').then(res => {
       const list = res.data
       setDataSource(
         roleId === 1
@@ -52,13 +52,13 @@ export default function UserList() {
   }, [])
 
   useEffect(() => {
-    axios.get('http://localhost:5000/regions').then(res => {
+    axios.get('/regions').then(res => {
       setRegionList(res.data)
     })
   }, [])
 
   useEffect(() => {
-    axios.get('http://localhost:5000/roles').then(res => {
+    axios.get('/roles').then(res => {
       setRoleList(res.data)
     })
   }, [])
@@ -78,13 +78,13 @@ export default function UserList() {
 
   const deleteMethod = (item: ItemType) => {
     setDataSource(dataSource.filter((data: ItemType) => data.id !== item.id))
-    axios.delete(`http://localhost:5000/users/${item.id}`)
+    axios.delete(`/users/${item.id}`)
   }
 
   const handleChange = (item: any) => {
     item.roleState = !item.roleState
     setDataSource([...dataSource])
-    axios.patch(`http://localhost:5000/users/${item.id}`, {
+    axios.patch(`/users/${item.id}`, {
       roleState: item.roleState,
     })
   }
@@ -181,7 +181,7 @@ export default function UserList() {
         setIsAddVisible(false)
         addForm.current.resetFields()
         axios
-          .post('http://localhost:5000/users', {
+          .post('/users', {
             ...value,
             roleState: true,
             default: false,
@@ -219,7 +219,7 @@ export default function UserList() {
       )
       setIsUpdateDisabled(!isUpdateDisabled)
       console.log('current', current)
-      axios.patch(`http://localhost:5000/users/${current.id}`, value)
+      axios.patch(`/users/${current.id}`, value)
     })
   }
 

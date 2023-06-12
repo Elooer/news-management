@@ -35,22 +35,20 @@ export default function RoleList() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
-    axios.get('http://localhost:5000/roles').then((res: any) => {
+    axios.get('/roles').then((res: any) => {
       setDataSource(res.data)
     })
   }, [])
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/brights?_embed=bchildren')
-      .then((res: any) => {
-        const newData = [...res.data]
-        newData.map(item => {
-          item['children'] = [...item.bchildren]
-          delete item.bchildren
-        })
-        setRightList(newData as any)
+    axios.get('/brights?_embed=bchildren').then((res: any) => {
+      const newData = [...res.data]
+      newData.map(item => {
+        item['children'] = [...item.bchildren]
+        delete item.bchildren
       })
+      setRightList(newData as any)
+    })
   }, [])
 
   const confirmMethod = (item: RoleType) => {
@@ -68,7 +66,7 @@ export default function RoleList() {
 
   const deleteMethod = (item: RoleType) => {
     setDataSource(dataSource.filter((data: RoleType) => data.id !== item.id))
-    axios.delete(`http://localhost:5000/roles/${item.id}`)
+    axios.delete(`/roles/${item.id}`)
   }
 
   const columns = [
@@ -127,7 +125,7 @@ export default function RoleList() {
         return item
       })
     )
-    axios.patch(`http://localhost:5000/roles/${currentId}`, {
+    axios.patch(`/roles/${currentId}`, {
       rights: currentRights,
     })
   }

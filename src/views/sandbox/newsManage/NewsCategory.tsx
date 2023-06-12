@@ -20,10 +20,10 @@ interface ItemType {
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
 export default function NewsCategory() {
-  const [dataSource, setDataSource] = useState([])
+  const [dataSource, setDataSource] = useState<any>([])
 
   useEffect(() => {
-    axios.get('http://localhost:5000/categories').then(res => {
+    axios.get('/categories').then(res => {
       setDataSource(res.data)
     })
   }, [])
@@ -43,10 +43,27 @@ export default function NewsCategory() {
 
   const deleteMethod = (item: ItemType) => {
     setDataSource(dataSource.filter((data: ItemType) => data.id !== item.id))
-    axios.delete(`http://localhost:5000/categories/${item.id}`)
+    axios.delete(`/categories/${item.id}`)
   }
 
-  const handleSave = () => {}
+  const handleSave = (record: any) => {
+    setDataSource(
+      dataSource.map((item: any) => {
+        if (item.id === record.id) {
+          return {
+            id: item.id,
+            title: record.title,
+            value: record.title,
+          }
+        }
+        return item
+      })
+    )
+    axios.patch(`/categories/${record.id}`, {
+      title: record.title,
+      value: record.title,
+    })
+  }
 
   interface DataType {
     key: React.Key

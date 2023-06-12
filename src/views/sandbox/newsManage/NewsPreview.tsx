@@ -12,12 +12,10 @@ export default function NewsPreview() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/news/${id}?_expand=category&_expand=role`)
-      .then(res => {
-        console.log(res.data)
-        setNewsInfo(res.data)
-      })
+    axios.get(`/news/${id}?_expand=category&_expand=role`).then(res => {
+      console.log(res.data)
+      setNewsInfo(res.data)
+    })
   }, [])
 
   const auditList = ['未审核', '审核中', '已通过', '未通过']

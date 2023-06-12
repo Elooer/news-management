@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { changeCollapsed } from '../../store/reducers/collapsedReducer'
+import type { RootState } from '../../store'
 import { Layout, theme, Button, Dropdown, Avatar } from 'antd'
 import type { MenuProps } from 'antd'
 import {
@@ -11,7 +14,8 @@ import {
 const { Header } = Layout
 
 export default function TopHeader() {
-  const [collapsed, setCollapsed] = useState(false)
+  const collapsed = useSelector((state: RootState) => state.collapsed.value)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const {
@@ -51,7 +55,7 @@ export default function TopHeader() {
       <Button
         type="text"
         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        onClick={() => setCollapsed(!collapsed)}
+        onClick={() => dispatch(changeCollapsed())}
         style={{
           fontSize: '16px',
           width: 64,

@@ -8,21 +8,19 @@ export default function Audit() {
     localStorage.getItem('news_token') || ''
   )
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/news?auditState=1_expand=category`)
-      .then(res => {
-        const list = res.data
-        setDataSource(
-          roleId === 1
-            ? list
-            : [
-                ...list.filter((item: any) => item.author === username),
-                ...list.filter(
-                  (item: any) => item.region === region && roleId === 3
-                ),
-              ]
-        )
-      })
+    axios.get(`/news?auditState=1&_expand=category`).then(res => {
+      const list = res.data
+      setDataSource(
+        roleId === 1
+          ? list
+          : [
+              ...list.filter((item: any) => item.author === username),
+              ...list.filter(
+                (item: any) => item.region === region && roleId === 3
+              ),
+            ]
+      )
+    })
   }, [])
   const columns = [
     {
@@ -63,7 +61,7 @@ export default function Audit() {
   const handleAudit = (item: any, auditState: number, publishState: number) => {
     setDataSource(dataSource.filter((data: any) => data.id !== item.id))
     axios
-      .patch(`http://localhost:5000/news/${item.id}`, {
+      .patch(`/news/${item.id}`, {
         auditState,
         publishState,
       })

@@ -17,18 +17,16 @@ export default function NewsUpdate() {
   const { id } = params
 
   useEffect(() => {
-    axios.get('http://localhost:5000/categories').then(res => {
+    axios.get('/categories').then(res => {
       setCategoryList(res.data)
     })
   }, [])
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/news/${id}?_expand=category&_expand=role`)
-      .then(res => {
-        let { title, categoryId, content } = res.data
-        formRef.current.setFieldsValue({ title, categoryId })
-        setContent(content)
-      })
+    axios.get(`/news/${id}?_expand=category&_expand=role`).then(res => {
+      let { title, categoryId, content } = res.data
+      formRef.current.setFieldsValue({ title, categoryId })
+      setContent(content)
+    })
   }, [])
 
   interface FormItf {
@@ -62,7 +60,7 @@ export default function NewsUpdate() {
 
   const handleSave = (auditState: number) => {
     axios
-      .patch(`http://localhost:5000/news/${id}`, {
+      .patch(`/news/${id}`, {
         ...formInfo,
         content: content,
 

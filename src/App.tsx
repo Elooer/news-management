@@ -25,10 +25,7 @@ function App() {
   const [backRouteList, setBackRouteList] = useState<any>([])
 
   useEffect(() => {
-    Promise.all([
-      axios.get('http://localhost:5000/rights'),
-      axios.get('http://localhost:5000/children'),
-    ]).then(res => {
+    Promise.all([axios.get('/rights'), axios.get('/children')]).then(res => {
       setBackRouteList([...res[0].data, ...res[1].data])
     })
   }, [])

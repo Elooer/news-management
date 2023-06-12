@@ -28,9 +28,7 @@ export default function NewsDraft() {
 
   useEffect(() => {
     axios
-      .get(
-        `http://localhost:5000/news?author=${username}&auditState=0&_expand=category`
-      )
+      .get(`/news?author=${username}&auditState=0&_expand=category`)
       .then(res => {
         const list = res.data
         setDataSource(list)
@@ -52,7 +50,7 @@ export default function NewsDraft() {
 
   const handleCheck = (id: number) => {
     axios
-      .patch(`http://localhost:5000/news/${id}`, {
+      .patch(`/news/${id}`, {
         auditState: 1,
       })
       .then((res: any) => {
@@ -68,7 +66,7 @@ export default function NewsDraft() {
   const deleteMethod = (item: ItemType) => {
     console.log(item.id)
     setDataSource(dataSource.filter((data: ItemType) => data.id !== item.id))
-    axios.delete(`http://localhost:5000/news/${item.id}`)
+    axios.delete(`/news/${item.id}`)
   }
   const columns = [
     {

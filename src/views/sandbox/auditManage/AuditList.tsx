@@ -10,7 +10,7 @@ export default function AuditList() {
   useEffect(() => {
     axios
       .get(
-        `http://localhost:5000/news?author=${username}&auditState_ne=0&publishState_lte=1&_expand=category`
+        `/news?author=${username}&auditState_ne=0&publishState_lte=1&_expand=category`
       )
       .then(res => {
         setDataSource(res.data)
@@ -74,7 +74,7 @@ export default function AuditList() {
   const handleRevert = (item: any) => {
     setDataSource(dataSource.filter((data: any) => data.id !== item.id))
     axios
-      .patch(`http://localhost:5000/news/${item.id}`, {
+      .patch(`/news/${item.id}`, {
         auditState: 0,
       })
       .then((res: any) => {
@@ -92,8 +92,9 @@ export default function AuditList() {
 
   const handlePublish = (item: any) => {
     axios
-      .patch(`http://localhost:5000/news/${item.id}`, {
+      .patch(`/news/${item.id}`, {
         publishState: 2,
+        publishTime: Date.now(),
       })
       .then((res: any) => {
         navigate('/publish-manage/published')

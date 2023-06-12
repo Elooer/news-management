@@ -17,7 +17,7 @@ export default function NewsAdd() {
   const user = JSON.parse(localStorage.getItem('news_token') || '')
 
   useEffect(() => {
-    axios.get('http://localhost:5000/categories').then(res => {
+    axios.get('/categories').then(res => {
       setCategoryList(res.data)
     })
   }, [])
@@ -53,7 +53,7 @@ export default function NewsAdd() {
 
   const handleSave = (auditState: number) => {
     axios
-      .post('http://localhost:5000/news', {
+      .post('/news', {
         ...formInfo,
         content: content,
         region: user.region ? user.region : '全球',
